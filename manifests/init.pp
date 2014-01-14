@@ -118,6 +118,6 @@ class iphawk {
     group => 'hawk',
     mode  => '0644',
     require => User['hawk'],
-    content => template('modules/iphawk/hawk.conf.erb'),
+    content => template('iphawk/hawk.conf.erb'),
   }
 }
