@@ -114,20 +114,20 @@ class iphawk {
     require  => [File['/srv/hawk/hawk.sql'],Class['mysql::server']],
   }
 
-  file {'/srv/hawk/hawk.conf':
+  file {'/srv/hawk/hawk-6.0/daemon/hawk.conf':
     ensure => file,
     owner => 'hawk',
     group => 'hawk',
     mode  => '0644',
-    require => User['hawk'],
+    require => Exec['get-hawk-tarball'],
     content => template('iphawk/hawk.conf.erb'),
   }
-  file {'/srv/hawk/hawk.conf.inc':
+  file {'/srv/hawk/hawk-0.6/php/hawk.conf.inc':
     ensure => file,
     owner => 'hawk',
     group => 'hawk',
     mode  => '0644',
-    require => User['hawk'],
+    require => Exec['get-hawk-tarball'],
     content => template('iphawk/hawk.conf.inc.erb'),
   }
 }
