@@ -122,4 +122,12 @@ class iphawk {
     require => User['hawk'],
     content => template('iphawk/hawk.conf.erb'),
   }
+  file {'/srv/hawk/hawk.conf.inc':
+    ensure => file,
+    owner => 'hawk',
+    group => 'hawk',
+    mode  => '0644',
+    require => User['hawk'],
+    content => template('iphawk/hawk.conf.inc.erb'),
+  }
 }
