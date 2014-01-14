@@ -35,6 +35,8 @@
 #
 class iphawk {
 
+  $hawk_password = '$h@wk'
+
   package {'php5-fpm':
     ensure => latest,
   }
@@ -54,7 +56,7 @@ class iphawk {
     comment    => 'IPHawk user',
     home       => '/srv/hawk',
     shell      => '/bin/bash',
-    password   => '$h@wk',
+    password   => $hawk_password,
     managehome => true,
   }
 
@@ -105,7 +107,7 @@ class iphawk {
 
   mysql::db {'hawk':
     user     => 'hawk',
-    password => '$h@wk',
+    password => $hawk_password,
     host     => 'localhost',
     grant    => ['CREATE','INSERT','SELECT','DELETE','UPDATE'],
     sql      => '/srv/hawk/hawk.sql',
