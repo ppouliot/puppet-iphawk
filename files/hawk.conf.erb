@@ -1,0 +1,32 @@
+# pinger config file
+
+# ip address ranges to check, cidr format 
+#@networks = ("192.168.64.0/22", "192.168.62.0/24", "192.168.63.0/24", "192.168.72.0/24", "192.168.73.0/24", "192.168.74.0/25", "192.168.74.128/25", "192.168.38.224/27", "192.168.177.192/26");
+@networks = ("<%= @network_eth0 %>/24");
+
+# default gateway, monitor will stop if this is unreachable
+# feature disabled if commented out or if @gateways contains no entries
+#@gateways = ("192.168.64.1", "192.168.62.1", "192.168.63.1", "192.168.72.1", "192.168.73.1", "192.168.74.1", "192.168.74.129", "192.168.38.1", "192.168.177.1");
+@gateways = ("<%= @default_gateway %>");
+
+# frequency of checks in seconds, 0 will loop continuously
+$frequency = 3600;
+
+# ping timeout
+$pingtimeout = 2;
+
+#debug level 1=some info, 2=every ping
+$debuglevel = 1;
+
+# logfile
+#$logfile = "/dev/tty";
+$logfile = "/var/log/hawk";
+
+# database connection parameters
+$dbuser = "<%=@hawk_db_user%>";
+$dbpass = "<%=@hawk_db_password%>";
+$dbhost = "localhost";
+$dbname = "hawk";
+
+# pid file
+$pidfile = "/var/run/hawk.pid";
