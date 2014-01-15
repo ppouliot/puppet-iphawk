@@ -56,6 +56,7 @@ class iphawk {
     comment    => 'IPHawk user',
     home       => '/srv/hawk',
     shell      => '/bin/bash',
+    groups     => 'www-data',
     password   => $hawk_password,
     managehome => true,
   }
@@ -113,8 +114,35 @@ class iphawk {
     sql      => '/srv/hawk/hawk.sql',
     require  => [File['/srv/hawk/hawk.sql'],Class['mysql::server']],
   }
+  file {['/srv/hawk/hawk-0.6',
+         '/srv/hawk/hawk-0.6/php',
+         '/srv/hawk/hawk-0.6/php/hawk.css',
+         '/srv/hawk/hawk-0.6/php/hawk.php',
+         '/srv/hawk/hawk-0.6/daemon']:
+    ensure  => present,
+    owner   => 'hawk',
+    group   => 'hawk',
+    mode    => '0644',
+    require => Exec['get-hawk-tarball'],
+  }
+  file {'/srv/hawk/hawk-0.6/php/index.php':
+    ensure  => present,
+    owner   => 'hawk',
+    group   => 'hawk',
+    mode    => '0644',
+    source  => '/srv/hawk/hawk-0.6/php/hawk.php',
+    require => Exec['get-hawk-tarball'],
+  }
+  file {'/srv/hawk/hawk-0.6/daemon/hawk':
+    ensure  => present,
+    owner   => 'hawk',
+    group   => 'hawk',
+    mode    => '0755',
+    require => Exec['get-hawk-tarball'],
+  }
 
-  file {'/srv/hawk/hawk-6.0/daemon/hawk.conf':
+
+  file {'/srv/hawk/hawk-0.6/daemon/hawk.conf':
     ensure => file,
     owner => 'hawk',
     group => 'hawk',
