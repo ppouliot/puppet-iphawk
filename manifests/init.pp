@@ -125,6 +125,14 @@ class iphawk {
     mode    => '0644',
     require => Exec['get-hawk-tarball'],
   }
+  file{'/srv/hawk/hawk-0.6/php/images':
+    ensure  => present,
+    recurse => true,
+    owner   => 'hawk',
+    group   => 'hawk',
+    mode    => '0644',
+    require => Exec['get-hawk-tarball'],
+  }
   file {'/srv/hawk/hawk-0.6/php/index.php':
     ensure  => present,
     owner   => 'hawk',
