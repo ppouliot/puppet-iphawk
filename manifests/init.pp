@@ -35,7 +35,8 @@
 #
 class iphawk {
 
-  $hawk_password = '$h@wk'
+#  $hawk_password = '$h@wk'
+  $hawk_password = 'hard24get'
 
   package {'php5-fpm':
     ensure => latest,
@@ -64,12 +65,26 @@ class iphawk {
   class {'nginx':}
 
   nginx::resource::vhost { 'hawk.openstack.tld':
-    www_root    => '/srv/hawk/hawk-0.6/php',
-    fastcgi     => 'localhost:9000',
-    index_files => ['hawk.php','index.php','index.html'],
+    www_root             => '/srv/hawk/hawk-0.6/php',
+#    fastcgi              => 'localhost:9000',
+#    fastcgi_script       => '/scripts$fastcgi_script_name',
+    use_default_location => false,
+#    index_files => ['index.php','index.html'],
     vhost_cfg_append => {
       autoindex => on,
     }
+  }
+  nginx::resource::location{'/':
+    ensure => present,
+    www_root => '/srv/hawk/hawk-0.6/php',
+    vhost    => 'hawk.openstack.tld',
+  }
+  nginx::resource::location{'~ "\.php$"':
+    ensure => present,
+    www_root => '/srv/hawk/hawk-0.6/php',
+    vhost    => 'hawk.openstack.tld',
+    fastcgi              => 'localhost:9000',
+#    fastcgi_script       => '/scripts$fastcgi_script_name',
   }
 
   exec {'get-hawk-tarball':
