@@ -186,7 +186,12 @@ class iphawk {
     owner => 'hawk',
     group => 'hawk',
     mode  => '0644',
-    require => Exec['get-hawk-tarball'],
+    require => [Exec['get-hawk-tarball'],File['/srv/hawk/hawk-0.6/daemon']],
     content => template('iphawk/hawk.conf.upstart.erb'),
   }
+
+  service {'hawk':
+    ensure => running,
+    require => File['/etc/init/hawk.conf'],
+  }   
 }
