@@ -181,4 +181,12 @@ class iphawk {
     require => Exec['get-hawk-tarball'],
     content => template('iphawk/hawk.conf.inc.erb'),
   }
+  file {'/etc/init/hawk.conf':
+    ensure => file,
+    owner => 'hawk',
+    group => 'hawk',
+    mode  => '0644',
+    require => Exec['get-hawk-tarball'],
+    content => template('iphawk/hawk.conf.upstart.erb'),
+  }
 }

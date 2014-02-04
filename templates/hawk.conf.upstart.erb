@@ -1,0 +1,7 @@
+description "IPHawk: IP Address Tracking and Monitoring"
+author "ppouliot@microsoft.com"
+
+start on runlevel [2345]
+stop on runlevel [!2345]
+
+exec /srv/hawk/hawk-0.6/daemon/hawk -c /srv/hawk/hawk-0.6/hawk.conf
