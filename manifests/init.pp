@@ -167,7 +167,7 @@ class iphawk {
   }
   exec {'fix_hawk_php_code':
     command   => "/bin/sed -i 's/HTTP_POST_VARS/_POST/g' /srv/hawk/hawk-0.6/php/index.php",
-    cwd       => '/srv/hawk/hawk-6.0/php',
+    cwd       => '/srv/hawk/hawk-0.6/php',
     require   => [Exec['get-hawk-tarball'],File['/srv/hawk/hawk-0.6/php/index.php']],
     unless    => '/bin/grep -vc "$_POST" /srv/hawk/hawk-0.6/php/index.php',
     logoutput => true,
