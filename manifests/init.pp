@@ -36,7 +36,11 @@
 class iphawk {
 
 #  $hawk_password = '$h@wk'
-  $hawk_password = 'hard24get'
+  $hawk_db_user     = 'hawk'
+  $hawk_db_password = 'hard24get'
+  $hawk_db_name     = 'hawk'
+  $hawk_logfile     = '/var/log/hawk.log'
+  $hawk_pid         = '/var/run/hawk.pid'
 
   package {'php5-fpm':
     ensure => latest,
@@ -121,9 +125,9 @@ class iphawk {
 
   class {'::mysql::server':}
 
-  mysql::db {'hawk':
-    user     => 'hawk',
-    password => $hawk_password,
+  mysql::db {$hawk_db_name:
+    user     => $hawk_db_user,
+    password => $hawk_db_password,
     host     => 'localhost',
     grant    => ['CREATE','INSERT','SELECT','DELETE','UPDATE'],
     sql      => '/srv/hawk/hawk.sql',
@@ -192,6 +196,6 @@ class iphawk {
 
   service {'hawk':
     ensure => running,
-    require => File['/etc/init/hawk.conf'],
+    require => File['/etc/init/hawk.conf','/srv/hawk/hawk-0.6/daemon/hawk'],
   }   
 }

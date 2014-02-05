@@ -20,13 +20,14 @@ $debuglevel = 1;
 
 # logfile
 #$logfile = "/dev/tty";
-$logfile = "/var/log/hawk";
+$logfile = "<%=@hawk_logfile%>";
+#$logfile = "/var/log/hawk";
 
 # database connection parameters
-$dbuser = "hawk";
-$dbpass = "<%=@hawk_password%>";
+$dbuser = "<%=@hawk_db_user%>";
+$dbpass = "<%=@hawk_db_password%>";
 $dbhost = "localhost";
-$dbname = "hawk";
+$dbname = "<%=@hawk_db_name%>";
 
 # pid file
-$pidfile = "/var/run/hawk.pid";
+$pidfile = "<%=@hawk_pid%>";
