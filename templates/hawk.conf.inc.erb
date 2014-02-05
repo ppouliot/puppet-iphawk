@@ -1,10 +1,10 @@
 <?php
 
 # database info, should match what's in hawk.conf
-$dbuser = "hawk";
-$dbpass = "<%=@hawk_password%>";
-$dbhost = "localhost";
-$dbname = "hawk";
+$dbuser = "<%=hawk_db_user%>";
+$dbpass = "<%=@hawk_db_password%>";
+$dbhost = "<%=@hawk_db_host%>";
+$dbname = "<%=@hawk_db_name%>";
 
 # default value for yellow and red zones
 # how long for no response to trigger "yellow" and "red" status'

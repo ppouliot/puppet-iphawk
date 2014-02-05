@@ -67,7 +67,7 @@ class iphawk {
     home       => '/srv/hawk',
     shell      => '/bin/bash',
     groups     => 'www-data',
-    password   => $hawk_password,
+    password   => $hawk_db_password,
     managehome => true,
   }
 
