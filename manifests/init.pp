@@ -39,8 +39,13 @@ class iphawk {
   $hawk_db_user     = 'hawk'
   $hawk_db_password = 'hard24get'
   $hawk_db_name     = 'hawk'
+  $hawk_db_host     = 'localhost'
   $hawk_logfile     = '/var/log/hawk.log'
   $hawk_pid         = '/var/run/hawk.pid'
+  $ping_frequency   = '0'
+  $ping_timeout     = '2'
+# Debug Level 1 = Default, 2 = Every Ping
+  $debug_level      = '2'
 
   package {'php5-fpm':
     ensure => latest,
@@ -81,12 +86,12 @@ class iphawk {
   nginx::resource::location{'/':
     ensure => present,
     www_root => '/srv/hawk/hawk-0.6/php',
-    vhost    => 'hawk.openstack.tld',
+    vhost    => $fqdn,
   }
   nginx::resource::location{'~ "\.php$"':
     ensure => present,
     www_root => '/srv/hawk/hawk-0.6/php',
-    vhost    => 'hawk.openstack.tld',
+    vhost    => $fqdn,
     fastcgi              => 'localhost:9000',
 #    fastcgi_script       => '/scripts$fastcgi_script_name',
   }
@@ -128,7 +133,7 @@ class iphawk {
   mysql::db {$hawk_db_name:
     user     => $hawk_db_user,
     password => $hawk_db_password,
-    host     => 'localhost',
+    host     => $hawk_db_host,
     grant    => ['CREATE','INSERT','SELECT','DELETE','UPDATE'],
     sql      => '/srv/hawk/hawk.sql',
     require  => [File['/srv/hawk/hawk.sql'],Class['mysql::server']],
@@ -160,6 +165,14 @@ class iphawk {
     source  => '/srv/hawk/hawk-0.6/php/hawk.php',
     require => Exec['get-hawk-tarball'],
   }
+  exec {'fix_hawk_php_code':
+    command   => "/bin/sed -i 's/HTTP_POST_VARS/_POST/g' /srv/hawk/hawk-0.6/php/index.php",
+    cwd       => '/srv/hawk/hawk-6.0/php',
+    require   => [Exec['get-hawk-tarball'],File['/srv/hawk/hawk-0.6/php/index.php']],
+    unless    => '/bin/grep -vc "$_POST" /srv/hawk/hawk-0.6/php/index.php',
+    logoutput => true,
+  }
+  
   file {'/srv/hawk/hawk-0.6/daemon/hawk':
     ensure  => present,
     owner   => 'hawk',

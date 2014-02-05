@@ -10,23 +10,23 @@
 @gateways = ("<%= @default_gateway %>");
 
 # frequency of checks in seconds, 0 will loop continuously
-$frequency = 3600;
+$frequency = <%=@ping_frequency%>;
+
 
 # ping timeout
-$pingtimeout = 2;
+$pingtimeout = <%=@ping_timeout%>;
 
 #debug level 1=some info, 2=every ping
-$debuglevel = 1;
+$debuglevel = <%=@debug_level%>;
 
 # logfile
 #$logfile = "/dev/tty";
 $logfile = "<%=@hawk_logfile%>";
-#$logfile = "/var/log/hawk";
 
 # database connection parameters
 $dbuser = "<%=@hawk_db_user%>";
 $dbpass = "<%=@hawk_db_password%>";
-$dbhost = "localhost";
+$dbhost = "<%=@hawk_db_host%>";
 $dbname = "<%=@hawk_db_name%>";
 
 # pid file
