@@ -211,5 +211,5 @@ class iphawk {
     ensure => running,
     require => File['/etc/init/hawk.conf','/srv/hawk/hawk-0.6/daemon/hawk'],
   }   
-  create_reasources(hawk_networks,$networks)
+#  create_reasources(hawk_networks,$networks)
 }
