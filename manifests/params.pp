@@ -1,6 +1,7 @@
 class iphawk::params {
 #  $hawk_password = '$h@wk'
   $hawk_db_user     = 'hawk'
+  #$hawk_db_password = hiera('hawk_db_password',{})
   $hawk_db_password = 'hard24get'
   $hawk_db_name     = 'hawk'
   $hawk_db_host     = 'localhost'

@@ -7,7 +7,7 @@
 # default gateway, monitor will stop if this is unreachable
 # feature disabled if commented out or if @gateways contains no entries
 #@gateways = ("192.168.64.1", "192.168.62.1", "192.168.63.1", "192.168.72.1", "192.168.73.1", "192.168.74.1", "192.168.74.129", "192.168.38.1", "192.168.177.1");
-@gateways = ("<%= @default_gateway %>");
+@gateways = ("<%= @default_gateway %>","<%=@ipmi_network_gateway%>");
 
 # frequency of checks in seconds, 0 will loop continuously
 $frequency = <%=@ping_frequency%>;
