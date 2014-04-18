@@ -1,7 +1,7 @@
 <?php
 
 # database info, should match what's in hawk.conf
-$dbuser = "<%=hawk_db_user%>";
+$dbuser = "<%=@hawk_db_user%>";
 $dbpass = "<%=@hawk_db_password%>";
 $dbhost = "<%=@hawk_db_host%>";
 $dbname = "<%=@hawk_db_name%>";
@@ -26,6 +26,7 @@ $redzone = 60 * 60 * 24 * 7;
 #);
 $networks = array (
    "<%=@domain%>" => "<%=@network_eth0%>/24"
+   "IPMI Network" => "<%=@ipmi_network%>"
 );
 
 ?>

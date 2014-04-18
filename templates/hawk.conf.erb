@@ -2,7 +2,7 @@
 
 # ip address ranges to check, cidr format 
 #@networks = ("192.168.64.0/22", "192.168.62.0/24", "192.168.63.0/24", "192.168.72.0/24", "192.168.73.0/24", "192.168.74.0/25", "192.168.74.128/25", "192.168.38.224/27", "192.168.177.192/26");
-@networks = ("<%= @network_eth0 %>/24");
+@networks = ("<%= @network_eth0 %>/24","<%= @ipmi_network %>");
 
 # default gateway, monitor will stop if this is unreachable
 # feature disabled if commented out or if @gateways contains no entries

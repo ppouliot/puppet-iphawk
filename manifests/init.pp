@@ -33,19 +33,20 @@
 #
 # Copyright 2014 Peter J. Pouliot
 #
-class iphawk {
+class iphawk (
 
 #  $hawk_password = '$h@wk'
-  $hawk_db_user     = 'hawk'
-  $hawk_db_password = 'hard24get'
-  $hawk_db_name     = 'hawk'
-  $hawk_db_host     = 'localhost'
-  $hawk_logfile     = '/var/log/hawk.log'
-  $hawk_pid         = '/var/run/hawk.pid'
-  $ping_frequency   = '0'
-  $ping_timeout     = '2'
+  $hawk_db_user     = $iphawk::params::hawk_db_user,
+  $hawk_db_password = $iphawk::params::hawk_db_password,
+  $hawk_db_name     = $iphawk::params::hawk_db_name,
+  $hawk_db_host     = $iphawk::params::hawk_db_host,
+  $hawk_logfile     = $iphawk::params::hawk_logfile,
+  $hawk_pid         = $iphawk::params::hawk_pid,
+  $ping_frequency   = $iphawk::params::ping_frequency,
+  $ping_timeout     = $iphawk::params::ping_timeout,
 # Debug Level 1 = Default, 2 = Every Ping
-  $debug_level      = '2'
+  $debug_level      = $iphawk::params::debug_level,
+) inherits iphawk::params {
 
   package {'php5-fpm':
     ensure => latest,
