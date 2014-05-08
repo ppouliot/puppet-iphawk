@@ -76,6 +76,8 @@ class iphawk (
     groups     => $hawk_group,
     password   => $hawk_db_password,
     managehome => true,
+    require    => Class['nginx'],
+
   }
 
   class {'::nginx':}
