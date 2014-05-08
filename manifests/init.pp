@@ -34,86 +34,92 @@
 # Copyright 2014 Peter J. Pouliot
 #
 class iphawk (
-
-#  $hawk_password = '$h@wk'
-  $hawk_db_user     = $iphawk::params::hawk_db_user,
-  $hawk_db_password = $iphawk::params::hawk_db_password,
-  $hawk_db_name     = $iphawk::params::hawk_db_name,
-  $hawk_db_host     = $iphawk::params::hawk_db_host,
-  $hawk_logfile     = $iphawk::params::hawk_logfile,
-  $hawk_pid         = $iphawk::params::hawk_pid,
-  $ping_frequency   = $iphawk::params::ping_frequency,
-  $ping_timeout     = $iphawk::params::ping_timeout,
+  $hawk_user              = $iphawk::params::hawk_user,
+  $hawk_group             = $iphawk::params::hawk_group,
+  $hawk_db_user           = $iphawk::params::hawk_db_user,
+  $hawk_db_password       = $iphawk::params::hawk_db_password,
+  $hawk_db_name           = $iphawk::params::hawk_db_name,
+  $hawk_db_host           = $iphawk::params::hawk_db_host,
+  $hawk_logfile           = $iphawk::params::hawk_logfile,
+  $hawk_pid               = $iphawk::params::hawk_pid,
+  $ping_frequency         = $iphawk::params::ping_frequency,
+  $ping_timeout           = $iphawk::params::ping_timeout,
 # Debug Level 1 = Default, 2 = Every Ping
-  $debug_level      = $iphawk::params::debug_level,
+  $debug_level            = $iphawk::params::debug_level,
+  $php_fpm                = $iphawk::params::php_fpm,
+  $php_fpm_service        = $iphawk::params::php_fpm_service,
+  $php_fpm_www_conf       = $iphawk::params::php_fpm_www_conf,
+  $perl_required_packages = $iphawk::params::perl_required_packages,
 ) inherits iphawk::params {
 
-  package {'php5-fpm':
+  package { $php_fpm:
     ensure => latest,
   }
 
-  service {'php5-fpm':
-    ensure => running,
-    require => Package['php5-fpm'],
+  service {$php_fpm_service:
+    ensure  => running,
+    require => Package[$php_fpm],
   }
 
-  package {['php5-mysql','libnet-netmask-perl','libnet-ping-perl','libclass-dbi-perl','libdbd-mysql-perl']:
+  package { $perl_required_packages :
     ensure => latest,
   }
 
 
-  user {'hawk':
+  user { $hawk_user :
     ensure     => present,
     comment    => 'IPHawk user',
     home       => '/srv/hawk',
     shell      => '/bin/bash',
-    groups     => 'www-data',
+    groups     => $hawk_group,
     password   => $hawk_db_password,
     managehome => true,
   }
 
-  class {'nginx':}
+  class {'::nginx':}
 
-  nginx::resource::vhost { 'hawk.openstack.tld':
+#  nginx::resource::vhost { 'hawk.openstack.tld':
+  nginx::resource::vhost { $::fqdn:
     www_root             => '/srv/hawk/hawk-0.6/php',
 #    fastcgi              => 'localhost:9000',
 #    fastcgi_script       => '/scripts$fastcgi_script_name',
     use_default_location => false,
 #    index_files => ['index.php','index.html'],
-    vhost_cfg_append => {
+    vhost_cfg_append     => {
       autoindex => on,
     }
   }
   nginx::resource::location{'/':
-    ensure => present,
+    ensure   => present,
     www_root => '/srv/hawk/hawk-0.6/php',
-    vhost    => $fqdn,
+    vhost    => $::fqdn,
   }
   nginx::resource::location{'~ "\.php$"':
-    ensure => present,
+    ensure   => present,
     www_root => '/srv/hawk/hawk-0.6/php',
-    vhost    => $fqdn,
-    fastcgi              => 'localhost:9000',
+    vhost    => $::fqdn,
+    fastcgi  => 'localhost:9000',
 #    fastcgi_script       => '/scripts$fastcgi_script_name',
   }
 
   exec {'get-hawk-tarball':
-    command => '/usr/bin/wget -cv http://downloads.sourceforge.net/project/iphawk/iphawk/Hawk%200.6/hawk-0.6.tar.gz -O - | tar -xz',
+    command => '/usr/bin/wget -cv http://downloads.sourceforge.net/project/iphawk/iphawk/Hawk%200.6/hawk-0.6.tar.gz -O - | /bin/tar -xz',
     creates => '/srv/hawk/hawk-0.6',
     cwd     => '/srv/hawk/',
-    require => User['hawk'],
+    require => User[$hawk_user],
   }
 
   exec {'conf-fastcgi-nginx':
-    command => "/bin/sed -i '/^listen = \/var\/run\/php5-fpm.sock/c\listen = 127.0.0.1\:9000' /etc/php5/fpm/pool.d/www.conf",
+    #command => "/bin/sed -i '^listen = \/var\/run\/php5-fpm.sock/c\listen = 127.0.0.1:9000' /etc/php5/fpm/pool.d/www.conf",
+    command => "/bin/sed -i '^listen = /var/run/php5-fpm.sock/c\ listen = 127.0.0.1:9000' ${php_fpm_www_conf}",
     cwd     => '/etc/php5/fpm/pool.d',
-    require => [Package['php5-fpm'],Class['nginx']],
-    notify  => Service['php5-fpm'],
-    unless  => "/bin/grep '^listen = 127.0.0.1\:9000' /etc/php5/fpm/pool.d/www.conf"
+    require => [Package[$php_fpm],Class['nginx']],
+    notify  => Service[$php_fpm_service],
+    unless  => "/bin/grep '^listen = 127.0.0.1:9000' ${php_fpm_www_conf}"
   }
 
   file {'/srv/hawk/hawk.sql':
-    ensure => file,
+    ensure  => file,
     content => "CREATE TABLE ip (
   ip CHAR(16) NOT NULL default '0',
   hostname CHAR(255) default NULL,
@@ -123,10 +129,10 @@ class iphawk (
   KEY ip_2 (ip)
 ) ENGINE=MYISAM;
 ",
-    owner => 'hawk',
-    group => 'hawk',
-    mode  => '0644',
-    require => User['hawk'],
+    owner   => $hawk_user,
+    group   => $hawk_group,
+    mode    => '0644',
+    require => User[$hawk_user],
   }
 
   class {'::mysql::server':}
@@ -145,23 +151,23 @@ class iphawk (
          '/srv/hawk/hawk-0.6/php/hawk.php',
          '/srv/hawk/hawk-0.6/daemon']:
     ensure  => present,
-    owner   => 'hawk',
-    group   => 'hawk',
+    owner   => $hawk_user,
+    group   => $hawk_group,
     mode    => '0644',
     require => Exec['get-hawk-tarball'],
   }
   file{'/srv/hawk/hawk-0.6/php/images':
     ensure  => present,
     recurse => true,
-    owner   => 'hawk',
-    group   => 'hawk',
+    owner   => $hawk_user,
+    group   => $hawk_group,
     mode    => '0644',
     require => Exec['get-hawk-tarball'],
   }
   file {'/srv/hawk/hawk-0.6/php/index.php':
     ensure  => present,
-    owner   => 'hawk',
-    group   => 'hawk',
+    owner   => $hawk_user,
+    group   => $hawk_group,
     mode    => '0644',
     source  => '/srv/hawk/hawk-0.6/php/hawk.php',
     require => Exec['get-hawk-tarball'],
@@ -173,43 +179,40 @@ class iphawk (
     unless    => '/bin/grep -vc "$_POST" /srv/hawk/hawk-0.6/php/index.php',
     logoutput => true,
   }
-  
   file {'/srv/hawk/hawk-0.6/daemon/hawk':
     ensure  => present,
-    owner   => 'hawk',
-    group   => 'hawk',
+    owner   => $hawk_user,
+    group   => $hawk_group,
     mode    => '0755',
     require => Exec['get-hawk-tarball'],
   }
-
-
   file {'/srv/hawk/hawk-0.6/daemon/hawk.conf':
-    ensure => file,
-    owner => 'hawk',
-    group => 'hawk',
-    mode  => '0644',
+    ensure  => file,
+    owner   => $hawk_user,
+    group   => $hawk_group,
+    mode    => '0644',
     require => Exec['get-hawk-tarball'],
     content => template('iphawk/hawk.conf.erb'),
   }
   file {'/srv/hawk/hawk-0.6/php/hawk.conf.inc':
-    ensure => file,
-    owner => 'hawk',
-    group => 'hawk',
-    mode  => '0644',
+    ensure  => file,
+    owner   => $hawk_user,
+    group   => $hawk_group,
+    mode    => '0644',
     require => Exec['get-hawk-tarball'],
     content => template('iphawk/hawk.conf.inc.erb'),
   }
   file {'/etc/init/hawk.conf':
-    ensure => file,
-    owner => 'hawk',
-    group => 'hawk',
-    mode  => '0644',
+    ensure  => file,
+    owner   => $hawk_user,
+    group   => $hawk_group,
+    mode    => '0644',
     require => [Exec['get-hawk-tarball'],File['/srv/hawk/hawk-0.6/daemon']],
     content => template('iphawk/hawk.conf.upstart.erb'),
   }
 
   service {'hawk':
-    ensure => running,
+    ensure  => running,
     require => File['/etc/init/hawk.conf','/srv/hawk/hawk-0.6/daemon/hawk'],
   }   
 #  create_reasources(hawk_networks,$networks)
