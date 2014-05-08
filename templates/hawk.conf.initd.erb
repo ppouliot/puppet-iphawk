@@ -1,0 +1,32 @@
+$pidfile = "<%=@hawk_pid%>";
+#!/bin/sh
+
+HAWK_HOME=<%=@hawk_home_dir%>
+HAWK_PID=<%=@hawk_pid%>
+
+case "$1" in
+
+   start)
+      echo "Starting hawk"
+      $HAWK_HOME/daemon/hawk &
+   ;;
+
+   stop)
+      echo "Shutting down hawk"
+      if [ -f "$HAWK_PID" ];then
+         kill `cat $HAWK_PID`
+      fi
+   ;;
+
+   restart)
+      echo "Restarting hawk"
+      if [ -f "$HAWK_PID" ];then
+         kill -HUP `cat $HAWK_PID`
+      fi
+   ;;
+
+   *)
+     /bin/echo "Usage: $0 {start|stop|restart}"
+     exit 1
+   ;;
+esac

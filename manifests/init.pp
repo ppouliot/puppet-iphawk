@@ -42,6 +42,8 @@ class iphawk (
   $hawk_db_host           = $iphawk::params::hawk_db_host,
   $hawk_logfile           = $iphawk::params::hawk_logfile,
   $hawk_pid               = $iphawk::params::hawk_pid,
+  $hawk_init_script       = $iphawk::params::hawk_init_script,
+  $hawk_script_template   = $iphawk::params::hawk_script_template,
   $ping_frequency         = $iphawk::params::ping_frequency,
   $ping_timeout           = $iphawk::params::ping_timeout,
 # Debug Level 1 = Default, 2 = Every Ping
@@ -202,18 +204,21 @@ class iphawk (
     require => Exec['get-hawk-tarball'],
     content => template('iphawk/hawk.conf.inc.erb'),
   }
-  file {'/etc/init/hawk.conf':
+#  file {'/etc/init/hawk.conf':
+  file {$hawk_init_script:
     ensure  => file,
     owner   => $hawk_user,
     group   => $hawk_group,
-    mode    => '0644',
+#    mode    => '0644',
+    mode    => '0755',
     require => [Exec['get-hawk-tarball'],File['/srv/hawk/hawk-0.6/daemon']],
-    content => template('iphawk/hawk.conf.upstart.erb'),
+#    content => template('iphawk/hawk.conf.upstart.erb'),
+    content => template($hawk_script_template),
   }
 
   service {'hawk':
     ensure  => running,
-    require => File['/etc/init/hawk.conf','/srv/hawk/hawk-0.6/daemon/hawk'],
+    require => File["${hawk_init_script}",'/srv/hawk/hawk-0.6/daemon/hawk'],
   }   
 #  create_reasources(hawk_networks,$networks)
 }
