@@ -42,7 +42,7 @@ class iphawk::params {
       $php_fpm_www_conf       = '/etc/php-fpm.d/www.conf'
       $perl_required_packages = [ 'perl-Net-Netmask.noarch',
 'perl-Class-DBI.noarch',
-'perl-Net-Ping.noarch',
+'perl-Net-Ping',
 'perl-DBD-MySQL']
     }
 #                                 'libnet-ping-perl',
