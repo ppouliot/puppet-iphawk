@@ -80,6 +80,14 @@ class iphawk (
 
   }
 
+ if $::osfamily == 'Redhat' {
+  file { '/srv/hawk' :
+    ensure     => present,
+    mode       => '0755',
+    require    => User[$hawk_user],
+  }
+ }
+  
   class {'::nginx':}
 
 #  nginx::resource::vhost { 'hawk.openstack.tld':
