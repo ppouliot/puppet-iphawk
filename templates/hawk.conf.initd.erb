@@ -11,6 +11,14 @@ case "$1" in
       $HAWK_HOME/daemon/hawk &
    ;;
 
+   status)
+      if [ -f "$HAWK_PID" ];then
+         echo "Hawk Process is Running"
+      else
+         echo "Hawk Process is not Running"
+      fi
+   ;;
+
    stop)
       echo "Shutting down hawk"
       if [ -f "$HAWK_PID" ];then
