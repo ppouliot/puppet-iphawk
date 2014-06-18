@@ -131,7 +131,7 @@ class iphawk (
   }
 
   file {'/srv/hawk/hawk.sql':
-    ensure  => file,
+    ensure  => present,
     content => "CREATE TABLE ip (
   ip CHAR(16) NOT NULL default '0',
   hostname CHAR(255) default NULL,
