@@ -25,8 +25,10 @@ $redzone = 60 * 60 * 24 * 7;
 #   "DMZ 2" => "192.168.38.224/27"
 #);
 $networks = array (
-   "<%=@domain%>" => "<%=@network_eth0%>/24",
-   "IPMI Network" => "<%=@ipmi_network%>"
+   "<%=@domain%>" => "<%=@network_eth0%>/24"<% if @additional_networks
+@additional_networks.each do |key, network| %>,
+   "<%= key %>" => "<%= network %>"<% end
+end %>
 );
 
 ?>

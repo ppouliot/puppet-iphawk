@@ -1,13 +1,19 @@
 # pinger config file
 
-# ip address ranges to check, cidr format 
+# ip address ranges to check, cidr format
 #@networks = ("192.168.64.0/22", "192.168.62.0/24", "192.168.63.0/24", "192.168.72.0/24", "192.168.73.0/24", "192.168.74.0/25", "192.168.74.128/25", "192.168.38.224/27", "192.168.177.192/26");
-@networks = ("<%= @network_eth0 %>/24","<%= @ipmi_network %>");
+@networks = ("<%= @network_eth0 %>/24"<% if @additional_networks
+   @additional_networks.each do |key, network|%>,"<%= network %>"<%end
+end -%>
+);
 
 # default gateway, monitor will stop if this is unreachable
 # feature disabled if commented out or if @gateways contains no entries
 #@gateways = ("192.168.64.1", "192.168.62.1", "192.168.63.1", "192.168.72.1", "192.168.73.1", "192.168.74.1", "192.168.74.129", "192.168.38.1", "192.168.177.1");
-@gateways = ("<%= @default_gateway %>","<%=@ipmi_network_gateway%>");
+@gateways = ("<%= @default_gateway %>"<% if @additional_gateways
+   @additional_gateways.each do |gateway|%>,"<%= gateway %>"<%end
+end -%>
+);
 
 # frequency of checks in seconds, 0 will loop continuously
 $frequency = <%=@ping_frequency%>;

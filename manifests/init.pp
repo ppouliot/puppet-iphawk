@@ -52,6 +52,8 @@ class iphawk (
   $php_fpm_service        = $iphawk::params::php_fpm_service,
   $php_fpm_www_conf       = $iphawk::params::php_fpm_www_conf,
   $perl_required_packages = $iphawk::params::perl_required_packages,
+  $additional_networks    = {},
+  $additional_gateways    = [],
 ) inherits iphawk::params {
 
   package { $php_fpm:
