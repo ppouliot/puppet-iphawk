@@ -125,7 +125,7 @@ class iphawk (
 
   exec {'conf-fastcgi-nginx':
     #command => "/bin/sed -i '^listen = \/var\/run\/php5-fpm.sock/c\listen = 127.0.0.1:9000' /etc/php5/fpm/pool.d/www.conf",
-    command => "/bin/sed -i '^listen = /var/run/php5-fpm.sock/c\ listen = 127.0.0.1:9000' ${php_fpm_www_conf}",
+    command => "/bin/sed -i \'^listen = /var/run/php5-fpm.sock/c\ listen = 127.0.0.1:9000\' ${php_fpm_www_conf}",
     cwd     => '/etc/php5/fpm/pool.d',
     require => [Package[$php_fpm],Class['nginx']],
     notify  => Service[$php_fpm_service],
