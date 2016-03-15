@@ -64,14 +64,11 @@ class iphawk (
     ensure  => running,
     require => Package[$php_fpm],
   }
-
   package { $perl_required_packages :
     ensure => latest,
   }
-
-
   user { $hawk_user :
-    ensure     => present,
+    ensure     => file,
     comment    => 'IPHawk user',
     home       => '/srv/hawk',
     shell      => '/bin/bash',
@@ -79,37 +76,27 @@ class iphawk (
     password   => $hawk_db_password,
     managehome => true,
     require    => Class['nginx'],
-
   }
-
- if $::osfamily == 'Redhat' {
-  file { '/srv/hawk' :
-    ensure     => present,
-    mode       => '0755',
-    require    => User[$hawk_user],
-  }
- }
-  
-  class {'::nginx':}
-
-#  nginx::resource::vhost { 'hawk.openstack.tld':
-  nginx::resource::vhost { $::fqdn:
-    www_root             => '/srv/hawk/hawk-0.6/php',
-#    fastcgi              => 'localhost:9000',
-#    fastcgi_script       => '/scripts$fastcgi_script_name',
-    use_default_location => false,
-#    index_files => ['index.php','index.html'],
-    vhost_cfg_append     => {
-      autoindex => on,
+  if $::osfamily == 'Redhat' {
+    file { '/srv/hawk' :
+      ensure  => file,
+      mode    => '0755',
+      require => User[$hawk_user],
     }
   }
+  class {'::nginx':}
+  nginx::resource::vhost { $::fqdn:
+    www_root             => '/srv/hawk/hawk-0.6/php',
+    use_default_location => false,
+#    vhost_cfg_append     => { autoindex => on },
+  }
   nginx::resource::location{'/':
-    ensure   => present,
+    ensure   => file,
     www_root => '/srv/hawk/hawk-0.6/php',
     vhost    => $::fqdn,
   }
   nginx::resource::location{'~ "\.php$"':
-    ensure   => present,
+    ensure   => file,
     www_root => '/srv/hawk/hawk-0.6/php',
     vhost    => $::fqdn,
     fastcgi  => 'localhost:9000',
@@ -127,13 +114,15 @@ class iphawk (
     #command => "/bin/sed -i '^listen = \/var\/run\/php5-fpm.sock/c\listen = 127.0.0.1:9000' /etc/php5/fpm/pool.d/www.conf",
     command => "/bin/sed -i \'\^listen = /var/run/php5-fpm.sock/c\ listen = 127.0.0.1:9000\' ${php_fpm_www_conf}",
     cwd     => '/etc/php5/fpm/pool.d',
-    require => [Package[$php_fpm],Class['nginx']],
+    require => [
+      Package[ $php_fpm],
+      Class['::nginx']
+    ],
     notify  => Service[$php_fpm_service],
-    unless  => "/bin/grep '^listen = 127.0.0.1:9000' ${php_fpm_www_conf}"
+    unless  => "/bin/grep '^listen = 127.0.0.1:9000' ${php_fpm_www_conf}",
   }
-
   file {'/srv/hawk/hawk.sql':
-    ensure  => present,
+    ensure  => file,
     content => "CREATE TABLE ip (
   ip CHAR(16) NOT NULL default '0',
   hostname CHAR(255) default NULL,
@@ -148,30 +137,29 @@ class iphawk (
     mode    => '0644',
     require => User[$hawk_user],
   }
-
   class {'::mysql::server':}
-
-  mysql::db {$hawk_db_name:
+  mysql::db{ $hawk_db_name:
     user     => $hawk_db_user,
     password => $hawk_db_password,
     host     => $hawk_db_host,
     grant    => ['CREATE','INSERT','SELECT','DELETE','UPDATE'],
     sql      => '/srv/hawk/hawk.sql',
-    require  => [File['/srv/hawk/hawk.sql'],Class['mysql::server']],
+    require  => [ File['/srv/hawk/hawk.sql'], Class['mysql::server'] ],
   }
-  file {['/srv/hawk/hawk-0.6',
-         '/srv/hawk/hawk-0.6/php',
-         '/srv/hawk/hawk-0.6/php/hawk.css',
-         '/srv/hawk/hawk-0.6/php/hawk.php',
-         '/srv/hawk/hawk-0.6/daemon']:
-    ensure  => present,
+  file {[
+    '/srv/hawk/hawk-0.6',
+    '/srv/hawk/hawk-0.6/php',
+    '/srv/hawk/hawk-0.6/php/hawk.css',
+    '/srv/hawk/hawk-0.6/php/hawk.php',
+    '/srv/hawk/hawk-0.6/daemon']:
+    ensure  => file,
     owner   => $hawk_user,
     group   => $hawk_group,
     mode    => '0644',
     require => Exec['get-hawk-tarball'],
   }
   file{'/srv/hawk/hawk-0.6/php/images':
-    ensure  => present,
+    ensure  => file,
     recurse => true,
     owner   => $hawk_user,
     group   => $hawk_group,
@@ -179,7 +167,7 @@ class iphawk (
     require => Exec['get-hawk-tarball'],
   }
   file {'/srv/hawk/hawk-0.6/php/index.php':
-    ensure  => present,
+    ensure  => file,
     owner   => $hawk_user,
     group   => $hawk_group,
     mode    => '0644',
@@ -194,7 +182,7 @@ class iphawk (
     logoutput => true,
   }
   file {'/srv/hawk/hawk-0.6/daemon/hawk':
-    ensure  => present,
+    ensure  => file,
     owner   => $hawk_user,
     group   => $hawk_group,
     mode    => '0755',
@@ -223,14 +211,12 @@ class iphawk (
     group   => $hawk_group,
 #    mode    => '0644',
     mode    => '0755',
-    require => [Exec['get-hawk-tarball'],File['/srv/hawk/hawk-0.6/daemon']],
-#    content => template('iphawk/hawk.conf.upstart.erb'),
+    require => [ Exec['get-hawk-tarball'], File['/srv/hawk/hawk-0.6/daemon']],
     content => template($hawk_script_template),
   }
-
   service {'hawk':
     ensure  => running,
-    require => File["${hawk_init_script}",'/srv/hawk/hawk-0.6/daemon/hawk'],
-  }   
+    require => File[$hawk_init_script,'/srv/hawk/hawk-0.6/daemon/hawk'],
+  }
 #  create_reasources(hawk_networks,$networks)
 }

@@ -1,3 +1,4 @@
+# == Class: iphawk::params
 class iphawk::params {
 #  $hawk_password    = '$h@wk'
   $hawk_user        = 'hawk'
